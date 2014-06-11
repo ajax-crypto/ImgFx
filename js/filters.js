@@ -66,7 +66,7 @@ var Filters = (function() {
         };
         var dst = output.data;
 
-        var alphaFac = opaque ? 1 : 0;
+        //var alphaFac = opaque ? 1 : 0;
 
         for (var y = 0; y < h; y++) {
             for (var x = 0; x < w; x++) {
@@ -83,13 +83,13 @@ var Filters = (function() {
 						r += src[srcOff] * wt;
 						g += src[srcOff + 1] * wt;
 						b += src[srcOff + 2] * wt;
-						a += src[srcOff + 3] * wt;
+						//a += src[srcOff + 3] * wt;
 					}
 				}
 				dst[dstOff] = r;
 				dst[dstOff + 1] = g;
 				dst[dstOff + 2] = b;
-				dst[dstOff + 3] = a + alphaFac*(255-a);
+				//dst[dstOff + 3] = a + alphaFac*(255-a);
             }
         }
         return output.data ;
@@ -116,12 +116,17 @@ var Filters = (function() {
 		return imageData ;
 	}
 	
-	function noise(imageData) {
+	function noise(imageData, upper, lower) {
+		if(arguments.length < 2) {
+			upper = 30 ;
+			lower = -30 ;
+		}
+		var radius = upper - lower ;
 		for(var i = 0; i < imageData.data.length; i += 4) {
 			r = imageData.data[i];
 			g = imageData.data[i + 1];
 			b = imageData.data[i + 2];
-			mod = Math.floor((Math.random() * 60) - 30);
+			mod = Math.floor((Math.random() * radius) - upper);
 			r += mod ;
 			g += mod ;
 			b += mod ;
@@ -313,10 +318,83 @@ var Filters = (function() {
 				h = Math.abs(horizontal[i]);
 				imageData.data[i] = v;
 				imageData.data[i+1] = h;
-				imageData.data[i+2] = (v+h)/4;
+				imageData.data[i+2] = (v+h)/2;
 				//imageData.data[i+3] = ;
 			}
 			grayscale(imageData);
+		}
+		return imageData ;
+	}
+	
+	function darken(imageData) {
+		return convolute(imageData, [ 0, 0, 0, 0, 6/9, 0, 0, 0, 0 ], true);
+	}
+	
+	function lighten(imageData) {
+		convolute(imageData, [ 0, 0, 0, 0, 12/9, 0, 0, 0, 0 ], true);
+	}
+	
+	function pencilSketch(imageData) {
+	
+		function clone(obj) {
+			if (null == obj || "object" != typeof obj) 
+				return obj;
+			var copy = {} ;
+			for (var attr in obj) 
+				if (obj.hasOwnProperty(attr)) 
+					copy[attr] = clone(obj[attr]);
+			return copy;
+		}
+		
+		var image1 = clone(imageData) ;
+		var image2 = clone(imageData);
+		image1 = invert(image1);
+		image2 = convolute(imageData, [ 1, 2, 1, 2, 1, 2, 1, 2, 1 ], true, true);
+		for(var i = 0; i < imageData.data.length; i += 4) {
+			r1 = image1.data[i];
+			g1 = image1.data[i + 1];
+			b1 = image1.data[i + 2];
+			r2 = image2.data[i];
+			g2 = image2.data[i + 1];
+			b2 = image2.data[i + 2];
+			imageData.data[i] = Math.min(255, r1 + r2);
+			imageData.data[i + 1] = Math.min(255, g1 + g2);
+			imageData.data[i + 2] = Math.min(255, b1 + b2);
+		}
+		grayscale(imageData);
+		return imageData ;	
+	}
+	
+	function gaussianBlur(imageData) {
+		return convolute(imageData, [ 
+		0.0030, 0.0133, 0.0219, 0.0133, 0.0030,
+		0.0133, 0.0596, 0.0983, 0.0596, 0.0133,
+		0.0219, 0.0983, 0.1621, 0.0983, 0.0219,
+		0.0133, 0.0596, 0.0983, 0.0596, 0.0133,
+		0.0030, 0.0133, 0.0219, 0.0133, 0.0030 ], true);
+	}
+	
+	function posterize(imageData, colors) {
+		if(arguments.length < 2) {
+			colors = 40 ;
+		}
+		var levels = [] ;
+		var level = 1 ;
+		for(var i = 0; i < 256; ++i) {
+			if( i < (colors * level) )
+				levels[i] = colors * (level - 1) ;
+			else {
+				levels[i] = (colors * level) ;
+				++level ;
+			}
+		}
+		for(var i = 0; i < imageData.data.length; i += 4) {
+			r = imageData.data[i];
+			g = imageData.data[i + 1];
+			b = imageData.data[i + 2];
+			imageData.data[i] = levels[r] ;
+			imageData.data[i + 1] = levels[g] ;
+			imageData.data[i + 2] = levels[b] ;
 		}
 		return imageData ;
 	}
@@ -334,6 +412,11 @@ var Filters = (function() {
 		sepiaTone : sepiaTone,
 		contrast : contrast,
 		threshold : threshold,
-		gamma : gamma
+		gamma : gamma,
+		pencilSketch : pencilSketch,
+		gaussianBlur : gaussianBlur,
+		posterize : posterize,
+		darken : darken,
+		lighten : lighten
 	};
 }());

@@ -17,7 +17,7 @@ var Effects = (function() {
 	
 	var performEffect = [ 
 		restore, Filters.grayscale, Filters.duotone, Filters.noise, Filters.invert, Filters.pixelate, Filters.brighten,
-		Filters.sepiaTone, Filters.contrast, Filters.threshold, Filters.gamma,
+		Filters.sepiaTone, Filters.contrast, Filters.threshold, Filters.gamma, Filters.pencilSketch, Filters.posterize,
 		
 		function(imageData) {
 			return Filters.convolute(imageData, [ 1, 2, 1, 2, 1, 2, 1, 2, 1 ], true, true);
@@ -45,6 +45,10 @@ var Effects = (function() {
 		
 		function(imageData) {
 			return Filters.sobel(imageData, false);
+		},
+		
+		function(imageData) {
+			return Filters.gaussianBlur(imageData);
 		}
 	];
 	

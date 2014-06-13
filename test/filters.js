@@ -1,9 +1,31 @@
 var Filters = (function() {
 	
+	var asciiChart = [] ;
+	var asciiMap = [ '*', '#', '@', '$', '!', '|', '-', '.' ];
+	var levels = 1 ;
+	for(var i = 0; i < 256; ++i) {
+		if( i < (32 * levels) )
+			asciiChart[i] = asciiMap[levels - 1] ;
+		else {
+			asciiChart[i] = asciiMap[levels] ;
+			++levels ;
+		}
+	}
+	
 	function normalize(array) {
 		var sum = array.reduce( function (a, b) { return a+b; } );
 		for(var i=0; i<array.length; ++i) 
 			array[i] /= sum ;
+	}
+	
+	function clone(obj) {
+		if (null == obj || "object" != typeof obj) 
+			return obj;
+		var copy = {} ;
+		for (var attr in obj) 
+			if (obj.hasOwnProperty(attr)) 
+				copy[attr] = clone(obj[attr]);
+		return copy;
 	}
 	
 	function convolute(pixels, weights, opaque, norm) {
@@ -322,16 +344,6 @@ var Filters = (function() {
 	}
 	
 	function pencilSketch(imageData) {
-	
-		function clone(obj) {
-			if (null == obj || "object" != typeof obj) 
-				return obj;
-			var copy = {} ;
-			for (var attr in obj) 
-				if (obj.hasOwnProperty(attr)) 
-					copy[attr] = clone(obj[attr]);
-			return copy;
-		}
 		
 		var image1 = clone(imageData) ;
 		var image2 = clone(imageData);
@@ -482,6 +494,33 @@ var Filters = (function() {
 				
 		return Filters.convolute(imageData, [ 0, 0, 0, 0, amount, 0, 0, 0, 0 ], true);
 	}
+	
+	function ASCII(imageData, font) {
+		if(arguments.length < 2) 
+			font = '1pt Courier' ;
+		
+		var width = imageData.width ;
+		var height = imageData.height ;
+		var canvas = document.createElement('canvas');
+		canvas.setAttribute('height', height);
+		canvas.setAttribute('width', width);
+		var buffer = canvas.getContext('2d');
+		buffer.font = font ;
+		var text ;
+		
+		grayscale(imageData);
+		console.log(asciiChart);
+		for(var y = 0; y < height; y += 1) {
+			text = '' ;
+			for(var x = 0; x < width; ++x) {
+				text += asciiChart[imageData.data[((width * y) + x) * 4]] ;
+			}
+			buffer.fillText(text, 0, y);
+		}
+		
+		var data = buffer.getImageData(0, 0, width, height);
+		return data ;
+	}
 						
 	return {
 		convolute : convolute,
@@ -509,6 +548,7 @@ var Filters = (function() {
 		blur : blur,
 		emboss : emboss,
 		lighten : lighten,
-		darken : darken
+		darken : darken,
+		ASCII : ASCII
 	};
 }());

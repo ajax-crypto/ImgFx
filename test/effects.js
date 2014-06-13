@@ -8,8 +8,8 @@ var Effects = (function() {
 	
 	function restore(imageData) {
 		for(var i = 0; i < imageData.data.length; i += 4) {
-			imageData.data[i] = buffer.data[i]
-			imageData.data[i + 1] = buffer.data[i + 1]
+			imageData.data[i] = buffer.data[i];
+			imageData.data[i + 1] = buffer.data[i + 1];
 			imageData.data[i + 2] = buffer.data[i + 2];
 		}
 		return imageData ;
@@ -18,7 +18,7 @@ var Effects = (function() {
 	var performEffect = [ 
 		restore, Filters.grayscale, Filters.duotone, Filters.noise, Filters.invert, Filters.pixelate, Filters.brighten,
 		Filters.sepiaTone, Filters.contrast, Filters.threshold, Filters.gamma, Filters.pencilSketch, Filters.posterize,
-		Filters.scatter, Filters.solarize, Filters.blur, Filters.sharpen, Filters.edgeDetect, Filters.emboss, 
+		Filters.scatter, Filters.solarize, Filters.ASCII, Filters.blur, Filters.sharpen, Filters.edgeDetect, Filters.emboss, 
 		Filters.lighten, Filters.darken, Filters.sobel, Filters.gaussianBlur ];
 	
 	function applyEffect(index) {

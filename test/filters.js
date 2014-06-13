@@ -149,41 +149,28 @@ var Filters = (function() {
 		return imageData ;
 	}
 	
-	function pixelate(imageData) {
+	function pixelate(imageData, radius) {
+		if(arguments.length < 2)
+			radius = 2 ;
+			
 		var width = imageData.width ;
 		var height = imageData.height ;
-		for(var y = 1; y < height; y+=3) {
-			for(var x = 1; x < width; x+=3) {
+		var delta = (2 * radius) ;
+		
+		for(var y = radius; y < height - radius; y += delta) {
+			for(var x = radius; x < width - radius; x += delta) {
 				r = imageData.data[((width * y) + x) * 4];
 				g = imageData.data[((width * y) + x) * 4 + 1];
 				b = imageData.data[((width * y) + x) * 4 + 2];
-					
-				imageData.data[((width * (y-1)) + (x-1)) * 4] = r ;
-				imageData.data[((width * (y-1)) + (x-1)) * 4 + 1] = g ;
-				imageData.data[((width * (y-1)) + (x-1)) * 4 + 2] = b ;
-				imageData.data[((width * (y+1)) + (x-1)) * 4] = r ;
-				imageData.data[((width * (y+1)) + (x-1)) * 4 + 1] = g ;
-				imageData.data[((width * (y+1)) + (x-1)) * 4 + 2] = b ;
-				imageData.data[((width * (y-1)) + (x+1)) * 4] = r ;
-				imageData.data[((width * (y-1)) + (x+1)) * 4 + 1] = g ;
-				imageData.data[((width * (y-1)) + (x+1)) * 4 + 2] = b ;
-				imageData.data[((width * (y+1)) + (x+1)) * 4] = r ;
-				imageData.data[((width * (y+1)) + (x+1)) * 4 + 1] = g ;
-				imageData.data[((width * (y+1)) + (x+1)) * 4 + 2] = b ;
-				imageData.data[((width * (y-1)) + (x)) * 4] = r ;
-				imageData.data[((width * (y-1)) + (x)) * 4 + 1] = g ;
-				imageData.data[((width * (y-1)) + (x)) * 4 + 2] = b ;
-				imageData.data[((width * (y)) + (x-1)) * 4] = r ;
-				imageData.data[((width * (y)) + (x-1)) * 4 + 1] = g ;
-				imageData.data[((width * (y)) + (x-1)) * 4 + 2] = b ;
-				imageData.data[((width * (y)) + (x+1)) * 4] = r ;
-				imageData.data[((width * (y)) + (x+1)) * 4 + 1] = g ;
-				imageData.data[((width * (y)) + (x+1)) * 4 + 2] = b ;
-				imageData.data[((width * (y+1)) + (x)) * 4] = r ;
-				imageData.data[((width * (y+1)) + (x)) * 4 + 1] = g ;
-				imageData.data[((width * (y+1)) + (x)) * 4 + 2] = b ;
+				for(var ny = -radius; ny < radius; ++ny) {
+					for(var nx = -radius; nx < radius; ++nx) {
+						imageData.data[((width * (y + ny)) + (x + nx)) * 4] = r ; 
+						imageData.data[((width * (y + ny)) + (x + nx)) * 4 + 1] = g ; 
+						imageData.data[((width * (y + ny)) + (x + nx)) * 4 + 2] = b ; 
+					}
+				}
 			}
-		}	
+		}
 		return imageData ;
 	}
 	
@@ -440,7 +427,25 @@ var Filters = (function() {
 			}
 		}
 		return imageData ;
-	}					
+	}
+
+	function solarize(imageData, threshold) {
+		if(arguments.length < 2)
+			threshold = 50 ;
+		
+		for(var i = 0; i < imageData.data.length; ++i) {
+			r = imageData.data[i];
+			g = imageData.data[i + 1];
+			b = imageData.data[i + 2];
+			var intensity = (r + g + b)/3.0 ;
+			if(intensity < threshold) {
+				imageData.data[i] = 255 - r;
+				imageData.data[i + 1] = 255 - g;
+				imageData.data[i + 2] = 255 - b;
+			}
+		}
+		return imageData ;
+	}
 						
 	return {
 		convolute : convolute,
@@ -461,6 +466,7 @@ var Filters = (function() {
 		posterize : posterize,
 		darken : darken,
 		lighten : lighten,
-		scatter : scatter
+		scatter : scatter,
+		solarize : solarize
 	};
 }());

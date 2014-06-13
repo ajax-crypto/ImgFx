@@ -398,7 +398,50 @@ var Filters = (function() {
 		}
 		return imageData ;
 	}
-	
+
+	function scatter(imageData, radius) {
+		if(arguments.length < 2)
+			radius = 5 ;
+		
+		var width = imageData.width ;
+		var height = imageData.height ;
+		var delta = 2 * radius ;
+		var total = (radius - 1) * radius ;
+		var swapPixel = function (x1, y1, x2, y2) {
+			var temp = new Array(4);
+			temp[0] = imageData.data[((width * y1) + x1) * 4] ;
+			temp[1] = imageData.data[((width * y1) + x1) * 4 + 1] ;
+			temp[2] = imageData.data[((width * y1) + x1) * 4 + 2] ;
+			temp[3] = imageData.data[((width * y1) + x1) * 4 + 3] ;
+			imageData.data[((width * y1) + x1) * 4] = imageData.data[((width * y2) + x2) * 4] ;
+			imageData.data[((width * y1) + x1) * 4 + 1] = imageData.data[((width * y2) + x2) * 4 + 1] ;
+			imageData.data[((width * y1) + x1) * 4 + 2] = imageData.data[((width * y2) + x2) * 4 + 2] ;
+			imageData.data[((width * y1) + x1) * 4 + 3] = imageData.data[((width * y2) + x2) * 4 + 3] ;
+			imageData.data[((width * y2) + x2) * 4] = temp[0] ;
+			imageData.data[((width * y2) + x2) * 4 + 1] = temp[1] ;
+			imageData.data[((width * y2) + x2) * 4 + 2] = temp[2] ;
+			imageData.data[((width * y2) + x2) * 4 + 3] = temp[3] ;
+		};
+		
+		for(var y = radius; y < height - radius; y += delta) {
+			for(var x = radius; x < width - radius; x += delta) {
+				var swap = false ;
+				var nswaps = 0 ;
+				while(!swap) {
+					var px1 = Math.floor((Math.random() * delta) - radius);
+					var py1 = Math.floor((Math.random() * delta) - radius);
+					var px2 = Math.floor((Math.random() * delta) - radius);
+					var py2 = Math.floor((Math.random() * delta) - radius);
+					swapPixel(px1 + x, py1 + y, px2 + x, py2 + y);
+					++nswaps ;
+					if(nswaps > total)
+						swap = true ;
+				}
+			}
+		}
+		return imageData ;
+	}					
+						
 	return {
 		convolute : convolute,
 		convolute32 : convoluteFloat32,
@@ -417,6 +460,7 @@ var Filters = (function() {
 		gaussianBlur : gaussianBlur,
 		posterize : posterize,
 		darken : darken,
-		lighten : lighten
+		lighten : lighten,
+		scatter : scatter
 	};
 }());

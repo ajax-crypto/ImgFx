@@ -18,40 +18,8 @@ var Effects = (function() {
 	var performEffect = [ 
 		restore, Filters.grayscale, Filters.duotone, Filters.noise, Filters.invert, Filters.pixelate, Filters.brighten,
 		Filters.sepiaTone, Filters.contrast, Filters.threshold, Filters.gamma, Filters.pencilSketch, Filters.posterize,
-		Filters.scatter, Filters.solarize,
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ 1, 2, 1, 2, 1, 2, 1, 2, 1 ], true, true);
-		},
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ 0, -3,  0, -3, 21, -3, 0, -3, 0 ], true, true);
-		},
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ -1, -1, -1, -1, 8, -1, -1, -1, -1  ], true);
-		},
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ -18, -9, 9, -9, 9, 9, 0, 9, 18 ], true, true);
-		},
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ 0, 0, 0, 0, 12/9, 0, 0, 0, 0 ], true);
-		},
-		
-		function(imageData) {
-			return Filters.convolute(imageData, [ 0, 0, 0, 0, 6/9, 0, 0, 0, 0 ], true);
-		},
-		
-		function(imageData) {
-			return Filters.sobel(imageData, false);
-		},
-		
-		function(imageData) {
-			return Filters.gaussianBlur(imageData);
-		}
-	];
+		Filters.scatter, Filters.solarize, Filters.blur, Filters.sharpen, Filters.edgeDetect, Filters.emboss, 
+		Filters.lighten, Filters.darken, Filters.sobel, Filters.gaussianBlur ];
 	
 	function applyEffect(index) {
 		ctx.putImageData(buffer, 0, 0);

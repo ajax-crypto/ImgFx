@@ -446,6 +446,42 @@ var Filters = (function() {
 		}
 		return imageData ;
 	}
+	
+	function edgeDetect(imageData) {
+		return Filters.convolute(imageData, [ -1, -1, -1, -1, 8, -1, -1, -1, -1  ], true);
+	}
+	
+	function sharpen(imageData, amount) {
+		if(arguments.length < 2)
+			amount = 20 ;
+			
+		return Filters.convolute(imageData, [ 0, -3,  0, -3, amount, -3, 0, -3, 0 ], true, true);
+	}
+	
+	function blur(imageData) {
+		return Filters.convolute(imageData, [ 1, 2, 1, 2, 1, 2, 1, 2, 1 ], true, true);
+	}
+	
+	function emboss(imageData, amount) {
+		if(arguments.length < 2)
+			amount = 95 ;
+				
+		return Filters.convolute(imageData, [ -18, -9, 9, -9, 100 - amount, 9, 0, 9, 18 ], true, true);
+	}
+	
+	function lighten(imageData, amount) {
+		if(arguments.length < 2 || amount < 0)
+			amount = 12/9 ;
+				
+		return Filters.convolute(imageData, [ 0, 0, 0, 0, amount, 0, 0, 0, 0 ], true);
+	}
+	
+	function darken(imageData, amount) {
+		if(arguments.length < 2 || amount > 1)
+			amount = 6/9 ;
+				
+		return Filters.convolute(imageData, [ 0, 0, 0, 0, amount, 0, 0, 0, 0 ], true);
+	}
 						
 	return {
 		convolute : convolute,
@@ -467,6 +503,12 @@ var Filters = (function() {
 		darken : darken,
 		lighten : lighten,
 		scatter : scatter,
-		solarize : solarize
+		solarize : solarize,
+		sharpen : sharpen,
+		edgeDetect : edgeDetect,
+		blur : blur,
+		emboss : emboss,
+		lighten : lighten,
+		darken : darken
 	};
 }());

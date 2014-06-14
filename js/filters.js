@@ -1,7 +1,7 @@
 var Filters = (function() {
 	
 	var asciiChart = [] ;
-	var asciiMap = [ '*', '#', '@', '$', '!', '|', '-', '.' ];
+	var asciiMap = [ '#', '@', '$', '!', '|', '-', '.', ' ' ];
 	var levels = 1 ;
 	for(var i = 0; i < 256; ++i) {
 		if( i < (32 * levels) )
@@ -512,9 +512,8 @@ var Filters = (function() {
 		console.log(asciiChart);
 		for(var y = 0; y < height; y += 1) {
 			text = '' ;
-			for(var x = 0; x < width; ++x) {
+			for(var x = 0; x < width; ++x) 
 				text += asciiChart[imageData.data[((width * y) + x) * 4]] ;
-			}
 			buffer.fillText(text, 0, y);
 		}
 		
